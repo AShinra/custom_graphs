@@ -1,18 +1,26 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.io as pio
+from plotly import offline
+import os
 
+pio.templates.default = "plotly"
+_path = os.getcwd()
 
 def create_barchart(df):
 
+    with st.container(border=True):
+        st.subheader('Dataframe Data')
+        st.dataframe(df)
+    
+    x_data = st.selectbox('Select Data for x axis', options=df.columns)
+    y_data = st.multiselect('Select Data for x axis', options=df.columns[1:])
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns(3, border=True)
+    
 
     with col1:
-        x_data = st.selectbox('Select Data for x axis', options=df.columns)
-        y_data = st.multiselect('Select Data for x axis', options=df.columns[1:])
-    
-    with col2:
         title_text = st.text_input('Chart Title', placeholder='Chart Title')
         cola, colb = st.columns(2)
         # st.write('Title Settings')
@@ -28,9 +36,8 @@ def create_barchart(df):
             f_style = 'normal'
         if title_f_style == 'Italic':
             f_style = 'italic'
-
-
-    with col3:   
+    
+    with col2:
         group_selected = st.radio('Bar Mode', options=['Stack', 'Group', 'Overlay', 'Relative'])
         if group_selected == 'Stack':
             bar_mode = 'stack'
@@ -40,8 +47,7 @@ def create_barchart(df):
             bar_mode = 'overlay'
         elif group_selected == 'Relative':
             bar_mode = 'relative'
-
-   
+       
 
     fig = px.bar(
         df,
@@ -50,7 +56,18 @@ def create_barchart(df):
         labels={'value':'Article Count', 'variable':''},
         title=title_text,
         orientation='v',
-        barmode=bar_mode
+        barmode=bar_mode,
+        color_discrete_sequence=[
+        "#0068c9",
+        "#83c9ff",
+        "#ff2b2b",
+        "#ffabab",
+        "#29b09d",
+        "#7defa1",
+        "#ff8700",
+        "#ffd16a",
+        "#6d3fc0",
+        "#d5dae5",]
         )
 
     fig.update_layout(
@@ -62,5 +79,11 @@ def create_barchart(df):
         )
 
     st.plotly_chart(fig)
+
+    img_btn = st.button('Save to image')
+    if img_btn:
+        offline.plot(fig, image = 'png', image_filename=f'{_path}/Test.png')
+
+        
 
     
